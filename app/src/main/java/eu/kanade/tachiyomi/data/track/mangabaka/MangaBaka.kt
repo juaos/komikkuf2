@@ -59,8 +59,15 @@ class MangaBaka(id: Long) : BaseTracker(id, "MangaBaka"), DeletableTracker {
         if (track.status == PLAN_TO_READ || track.status == CONSIDERING) {
             track.started_reading_date = 0
         }
+
+        val mangaItem = api.getMangaItem(track.remote_id)
+
         if (track.status != COMPLETED && didReadChapter) {
-            if (track.total_chapters > 0 && track.last_chapter_read.toLong() == track.total_chapters) {
+            if (
+                track.total_chapters > 0 &&
+                track.last_chapter_read.toLong() == track.total_chapters &&
+                mangaItem.status == "completed"
+            ) {
                 track.status = COMPLETED
             } else if (track.status != REREADING) {
                 track.status = READING
@@ -87,7 +94,7 @@ class MangaBaka(id: Long) : BaseTracker(id, "MangaBaka"), DeletableTracker {
                 track.status = if (!isRereading && hasReadChapters) READING else track.status
             }
 
-            update(track)
+            update(track, hasReadChapters)
         } else {
             // Set default fields if it's not found in the list
             track.tracking_url = "${MangaBakaApi.BASE_URL}/${track.remote_id}"

@@ -5,6 +5,7 @@ import android.text.Html
 import androidx.core.net.toUri
 import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.TrackerManager
+import eu.kanade.tachiyomi.data.track.mangabaka.dto.MangaBakaItem
 import eu.kanade.tachiyomi.data.track.mangabaka.dto.MangaBakaItemResult
 import eu.kanade.tachiyomi.data.track.mangabaka.dto.MangaBakaListResult
 import eu.kanade.tachiyomi.data.track.mangabaka.dto.MangaBakaOAuth
@@ -42,6 +43,15 @@ class MangaBakaApi(
     private val json: Json by injectLazy()
 
     private val authClient = client.newBuilder().addInterceptor(interceptor).build()
+
+    suspend fun getMangaItem(seriesId: Long): MangaBakaItem {
+        return with(json) {
+            authClient.newCall(GET("$API_BASE_URL/v1/series/$seriesId"))
+                .awaitSuccess()
+                .parseAs<MangaBakaItemResult>()
+                .data
+        }
+    }
 
     suspend fun resolveId(seriesId: Long): Long {
         return withIOContext {
