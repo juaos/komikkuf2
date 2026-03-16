@@ -133,16 +133,19 @@ class UpdatesScreenModel(
                             isLoading = false,
                             items = updateItems
                                 // KMK -->
-                                .groupBy { it.update.dateFetch.toLocalDate() }
-                                .flatMap { (_, mangas) ->
-                                    mangas.groupBy { it.update.mangaId }
-                                        .values
-                                        .flatMap { mangaChapters ->
-                                            val (unread, read) = mangaChapters.partition { !it.update.read }
-                                            unread.sortedBy { it.update.dateFetch } +
-                                                read.sortedByDescending { it.update.dateFetch }
-                                        }
+                                .groupBy { it.update.mangaId }
+                                .values
+                                .flatMap { mangaUpdates ->
+                                    val withDate = mangaUpdates.map { it to it.update.dateFetch.toLocalDate() }
+                                    val latestDate = withDate.maxOf { (_, date) -> date }
+                                    val latestItems = withDate
+                                        .filter { (_, date) -> date == latestDate }
+                                        .map { (item, _) -> item }
+                                    val (unread, read) = latestItems.partition { !it.update.read }
+                                    unread.sortedBy { it.update.dateFetch } +
+                                        read.sortedByDescending { it.update.dateFetch }
                                 }
+                                .sortedByDescending { it.update.dateFetch.toLocalDate() }
                                 .toPersistentList(),
                             // KMK <--
                         )
