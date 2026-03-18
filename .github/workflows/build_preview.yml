@@ -119,12 +119,12 @@ jobs:
 
 
       - name: Build app
-        run: ./gradlew assemblePreview -Pinclude-telemetry -Penable-updater
+        run: ./gradlew assembleDebug
 
       
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@v4
         with:
           path: "**/*.apk"
           retention-days: 1
@@ -160,6 +160,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Komikku-Novo-Build
-          path: app/build/outputs/apk/preview/*.apk
+          path: app/build/outputs/apk/debug/*.apk
+
 
 
